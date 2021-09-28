@@ -243,13 +243,14 @@
             document.addEventListener("keydown", doKey, false);
             document.getElementById("animate").checked = false;
             document.getElementById("animate").onchange = doAnimateCheckbox;
-            var cameraSlider = document.getElementById("slider");
-            cameraSlider.addEventListener("input", moveCube);
+            const cameraSlider = document.getElementById("camslider");
+            cameraSlider.addEventListener("input", adjustCamera);
+
             createWorld();
             render();
         }
 
-        function moveCube(e){
+        function adjustCamera(e){
             var target = (e.target) ? e.target : e.srcElement;
             camera.position.z = target.value;
         }
@@ -263,8 +264,8 @@
 
 <p><label><input type="checkbox" id="animate">Animate</label>
 </p>
-<label for="slider"></label>
-<input type="range" min="10" max="25" value="10" step="0.1" id="slider" orient="vertical" style="position:absolute;">
+<label for="camslider"></label>
+<input type="range" min="10" max="25" value="10" step="0.1" id="camslider" orient="vertical" style="position:absolute;">
 
 <div id="canvas-holder">
     <canvas id="glcanvas" width="500" height="500"></canvas>
