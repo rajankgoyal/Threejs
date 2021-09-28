@@ -26,6 +26,7 @@
 
         var canvas;  // The canvas on which the image is rendered.
 
+        var light = 0.4; // Default light from the top
 
         var model;   // Contains the visible objects in the scene, but
                      // not the lights or camera.  The model can be
@@ -36,7 +37,7 @@
                             // this object about the y-axis rotates the sphere.
 
         var animating = false;  // This is set to true when an animation is running.
-
+        var sphere;
 
         /*  Create the scene graph.  This function is called once, as soon as the page loads.
          *  The renderer has already been created before this function is called.
@@ -47,10 +48,10 @@
 
             // create a camera, sitting on the positive z-axis.  The camera is not part of the scene.
             camera = new THREE.PerspectiveCamera(45, canvas.width / canvas.height, 1, 30);
-            camera.position.z = 20;
+            camera.position.z = 10;
 
             // create some lights and add them to the scene.
-            scene.add(new THREE.DirectionalLight(0xffffff, 0.4)); // dim light shining from above
+            scene.add(new THREE.DirectionalLight(0xffffff, light)); // dim light shining from above
             var viewpointLight = new THREE.DirectionalLight(0xffffff, 0.8);  // a light to shine in the direction the camera faces
             viewpointLight.position.set(0, 0, 1);  // shines down the z-axis
             scene.add(viewpointLight);
@@ -66,11 +67,15 @@
 
 
             // Cone
-            model.add(new THREE.Mesh(  // add a big cube at the origin; the cube is not animated
+            const cone = new THREE.Mesh(  // add a big cube at the origin; the cube is not animated
                 //new THREE.BoxGeometry(3,3,3),
                 new THREE.ConeGeometry(2, 4, 64),
                 new THREE.MeshLambertMaterial({color: 0xff0099})
-            ));
+            );
+            cone.position.set(-4,-0.5,4);
+            cone.rotateY(1);
+            cone.rotateZ(1);
+
 
             // CUBE
             const cube = new THREE.Mesh(
@@ -90,16 +95,28 @@
             cylinder.position.y = 3;
             cylinder.rotateX(0.3);
 
-            //Circle
-            const circle = new THREE.Mesh(
+            //Torus
+            const Torus = new THREE.Mesh(
                 new THREE.TorusGeometry(2, 1, 32,64),
-                new THREE.MeshLambertMaterial({color: 0xf8c726}),
+                new THREE.MeshLambertMaterial({color: 0xf8f726}),
             );
-            circle.position.x = -5;
-            circle.position.y = -2;
-            //circle.rotateX(0.3);
+            Torus.position.x = -1;
+            Torus.position.y = -1;
+            Torus.position.z = -5;
+
+
+            //Torus
+            const icosahedron = new THREE.Mesh(
+                new THREE.IcosahedronGeometry(2, 2),
+                new THREE.MeshLambertMaterial({color: 0xff00ff}),
+            );
+            icosahedron.position.z= 5;
+
+
+
+            //Torus.rotateX(0.3);
             // Octahedron
-            const sphere = new THREE.Mesh(
+            sphere = new THREE.Mesh(
                 new THREE.OctahedronGeometry(1),
                 new THREE.MeshPhongMaterial({
                     color: "white",
@@ -108,8 +125,9 @@
                 })
             );
             sphere.position.x = 4;
+            sphere.position.z = 4;
             sphereRotator = new THREE.Object3D();
-            sphereRotator.add(sphere, cube, cylinder, circle);
+            sphereRotator.add(cone, sphere, cube, cylinder, Torus,icosahedron);
             model.add(sphereRotator);
 
             model.rotation.set(0.3, 0, 0); // Tip it forward a bit, so we're not looking at it edge-on.
@@ -225,10 +243,16 @@
             document.addEventListener("keydown", doKey, false);
             document.getElementById("animate").checked = false;
             document.getElementById("animate").onchange = doAnimateCheckbox;
+            var cameraSlider = document.getElementById("slider");
+            cameraSlider.addEventListener("input", moveCube);
             createWorld();
             render();
         }
 
+        function moveCube(e){
+            var target = (e.target) ? e.target : e.srcElement;
+            camera.position.z = target.value;
+        }
     </script>
 </head>
 <body onload="init()" style="background-color: #282c34; color: #fdfdfd; max-width: 500px; margin: auto ">
@@ -239,6 +263,8 @@
 
 <p><label><input type="checkbox" id="animate">Animate</label>
 </p>
+<label for="slider"></label>
+<input type="range" min="10" max="25" value="10" step="0.1" id="slider" orient="vertical" style="position:absolute;">
 
 <div id="canvas-holder">
     <canvas id="glcanvas" width="500" height="500"></canvas>
