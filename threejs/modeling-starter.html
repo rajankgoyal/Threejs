@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<head>
+<head xmlns="http://www.w3.org/1999/html">
     <meta charset="UTF-8">
-    <title>Three.js Modeling</title>
+    <title>Three.js shapes and animation</title>
     <style>
     </style>
     <script src="three.min.js"></script>
@@ -26,7 +26,10 @@
 
         var canvas;  // The canvas on which the image is rendered.
 
-        var light = 0.4; // Default light from the top
+
+        var directionalLight; // Default light from the top
+
+        var viewpointLight; // Light from z axis
 
         var model;   // Contains the visible objects in the scene, but
                      // not the lights or camera.  The model can be
@@ -37,7 +40,6 @@
                             // this object about the y-axis rotates the sphere.
 
         var animating = false;  // This is set to true when an animation is running.
-        var sphere;
 
         /*  Create the scene graph.  This function is called once, as soon as the page loads.
          *  The renderer has already been created before this function is called.
@@ -51,8 +53,10 @@
             camera.position.z = 10;
 
             // create some lights and add them to the scene.
-            scene.add(new THREE.DirectionalLight(0xffffff, light)); // dim light shining from above
-            var viewpointLight = new THREE.DirectionalLight(0xffffff, 0.8);  // a light to shine in the direction the camera faces
+            directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
+            scene.add(directionalLight); // dim light shining from above
+
+            viewpointLight = new THREE.DirectionalLight(0xffffff, 0.1);  // a light to shine in the direction the camera faces
             viewpointLight.position.set(0, 0, 1);  // shines down the z-axis
             scene.add(viewpointLight);
 
@@ -116,7 +120,7 @@
 
             //Torus.rotateX(0.3);
             // Octahedron
-            sphere = new THREE.Mesh(
+            const sphere = new THREE.Mesh(
                 new THREE.OctahedronGeometry(1),
                 new THREE.MeshPhongMaterial({
                     color: "white",
@@ -245,7 +249,11 @@
             document.getElementById("animate").onchange = doAnimateCheckbox;
             const cameraSlider = document.getElementById("camslider");
             cameraSlider.addEventListener("input", adjustCamera);
+            const lightSlider = document.getElementById("litslider");
+            lightSlider.addEventListener("input", adjustLight);
 
+            const zlightSlider = document.getElementById("zlitslider");
+            zlightSlider.addEventListener("input", zadjustLight);
             createWorld();
             render();
         }
@@ -254,18 +262,33 @@
             var target = (e.target) ? e.target : e.srcElement;
             camera.position.z = target.value;
         }
+        function adjustLight(e){
+            var target = (e.target) ? e.target : e.srcElement;
+            directionalLight.intensity = target.value;
+        }
+        function zadjustLight(e){
+            var target = (e.target) ? e.target : e.srcElement;
+            viewpointLight.intensity = target.value;
+        }
     </script>
 </head>
 <body onload="init()" style="background-color: #282c34; color: #fdfdfd; max-width: 500px; margin: auto ">
 
-<h2>Homework Animated Model</h2>
+<h2>Homework 3 - Three.js</h2>
 
 <p><b>Use Arrow, PageUp, PageDown, and Home keys to rotate the model.</b></p>
 
 <p><label><input type="checkbox" id="animate">Animate</label>
 </p>
-<label for="camslider"></label>
-<input type="range" min="10" max="25" value="10" step="0.1" id="camslider" orient="vertical" style="position:absolute;">
+<label for="camslider">Camera Distance</label>
+<input type="range" min="10" max="20" value="10" step="0.1" id="camslider" orient="vertical" style="position:absolute;">
+<br>
+<label for="litslider">Top-down Light intensity</label>
+<input type="range" min="0" max="1" value="0.1" step="0.1" id="litslider" orient="vertical" style="position:absolute;">
+<br>
+<label for="zlitslider">Z-axis Light intensity</label>
+<input type="range" min="0" max="1" value="0.1" step="0.1" id="zlitslider" orient="vertical" style="position:absolute;">
+
 
 <div id="canvas-holder">
     <canvas id="glcanvas" width="500" height="500"></canvas>
